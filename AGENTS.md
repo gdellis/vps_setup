@@ -5,6 +5,7 @@ This document provides guidelines for agentic coding assistants working on the V
 ## Build / Lint / Test Commands
 
 ### Running Scripts (Testing)
+
 ```bash
 # Run a specific module directly (requires sudo)
 sudo ./01_initial_hardening.sh
@@ -18,6 +19,7 @@ sudo ./install_all.sh
 ```
 
 ### Linting
+
 ```bash
 # Shell script linting with ShellCheck
 shellcheck 01_initial_hardening.sh
@@ -37,6 +39,7 @@ find . -name "*.md" -exec markdownlint {} \;
 ```
 
 ### Dry Run / Validation (without root)
+
 ```bash
 # Syntax check only
 bash -n 01_initial_hardening.sh
@@ -51,10 +54,12 @@ source ./lib/logger.sh
 ### Bash Scripting
 
 #### Shebang and Interpreter
+
 - Always use `#!/bin/bash` at the top of scripts
 - Target Bash 4.0+ features for compatibility with Ubuntu 20.04+
 
 #### Imports and Source Order
+
 ```bash
 #!/bin/bash
 # 1. Source shared libraries first
