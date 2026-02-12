@@ -1,6 +1,7 @@
 # VPS Setup
 
-Automated scripts to set up a secure, production-ready VPS with essential security tools, containerization, VPN access, comprehensive monitoring, and alerting.
+Automated scripts to set up a secure, production-ready VPS with essential security tools, containerization,
+VPN access, comprehensive monitoring, and alerting.
 
 ## Features
 
@@ -21,23 +22,27 @@ Automated scripts to set up a secure, production-ready VPS with essential securi
 ### Installation
 
 1. Clone the repository:
+
 ```bash
 git clone https://github.com/gdellis/vps_setup.git
 cd vps_setup
 ```
 
-2. Copy and configure environment variables:
+1. Copy and configure environment variables:
+
 ```bash
 cp .env.example .env
 nano .env  # Edit settings as needed
 ```
 
-3. Run the full installation:
+1. Run the full installation:
+
 ```bash
 sudo ./install_all.sh
 ```
 
 Alternatively, run individual modules:
+
 ```bash
 sudo ./01_initial_hardening.sh
 sudo ./02_docker_setup.sh
@@ -67,11 +72,12 @@ ssh vpsadmin@your-vps-ip -p 2222
 
 Access via VPN only:
 
-- **Grafana**: http://10.0.0.1:3000
+- **Grafana**: <http://10.0.0.1:3000>
   - Username: `admin`
   - Password: set in `.env`
 
 Pre-configured dashboards:
+
 - System Overview
 - Docker Containers
 - Security Status
@@ -85,13 +91,13 @@ Pre-configured dashboards:
 
 See `.env.example` for all configurable options:
 
-| Setting | Default | Description |
-|---------|---------|-------------|
-| `SSH_PORT` | 2222 | SSH port |
-| `NEW_USERNAME` | vpsadmin | Non-root admin user |
-| `WG_CLIENT_NAME` | laptop | WireGuard client identifier |
-| `GRAFANA_ADMIN_PASSWORD` | changeme123 | Grafana admin password |
-| `SMTP_SERVER` | smtp.gmail.com | Alert email server |
+| Setting                  | Default        | Description                 |
+| ------------------------ | -------------- | --------------------------- |
+| `SSH_PORT`               | 2222           | SSH port                    |
+| `NEW_USERNAME`           | vpsadmin       | Non-root admin user         |
+| `WG_CLIENT_NAME`         | laptop         | WireGuard client identifier |
+| `GRAFANA_ADMIN_PASSWORD` | changeme123    | Grafana admin password      |
+| `SMTP_SERVER`            | smtp.gmail.com | Alert email server          |
 
 ## Security
 
@@ -103,18 +109,21 @@ See `.env.example` for all configurable options:
 ## Troubleshooting
 
 ### WireGuard won't connect
+
 ```bash
 sudo wg show  # Check interface status
 sudo systemctl restart wg-quick@wg0
 ```
 
 ### Monitoring not working
+
 ```bash
 curl http://localhost:9090/api/v1/targets  # Check Prometheus targets
 sudo systemctl status node_exporter
 ```
 
 ### SSH access issues
+
 Check `/var/log/auth.log` for authentication failures.
 
 ## License

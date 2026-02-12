@@ -1,9 +1,12 @@
 # VPS Setup System - Design Document
 
 ## Overview
-This project provides automated scripts to set up and configure a secure, production-ready VPS with essential security tools, containerization, VPN access, comprehensive monitoring, and alerting.
+
+This project provides automated scripts to set up and configure a secure, production-ready VPS with essential security tools,
+containerization, VPN access, comprehensive monitoring, and alerting.
 
 ## Target Environment
+
 - **OS**: Ubuntu 20.04+ / Debian 11+
 - **Shell**: Bash 4.0+
 - **Init System**: systemd
@@ -68,7 +71,7 @@ flowchart TB
 
 ## Project Structure
 
-```
+```text
 vps_setup/
 ├── 01_initial_hardening.sh          # Base security hardening
 ├── 02_docker_setup.sh               # Docker and Compose installation
@@ -176,6 +179,7 @@ flowchart TB
 **Prerequisites**: Root access, fresh OS installation
 
 **Actions**:
+
 - Verify OS compatibility (Ubuntu 20.04+ / Debian 11+)
 - Update and upgrade all system packages
 - Install core packages: ufw, fail2ban, sudo, curl, wget, git, htop, ncdu
@@ -204,6 +208,7 @@ flowchart TB
 - Clean up unnecessary packages
 
 **Outputs**:
+
 - Non-root user with sudo privileges
 - SSH accessible only on non-standard port with key authentication
 - Active firewall with minimal open ports
@@ -219,6 +224,7 @@ flowchart TB
 **Prerequisites**: Completed initial hardening
 
 **Actions**:
+
 - Install Docker prerequisites:
   - ca-certificates
   - gnupg
@@ -238,6 +244,7 @@ flowchart TB
 - Enable Docker service on boot
 
 **Outputs**:
+
 - Docker CE installed
 - Docker Compose v2 plugin available
 - Non-root user can run Docker commands
@@ -253,12 +260,14 @@ flowchart TB
 **Prerequisites**: Completed initial hardening
 
 **Network Configuration**:
+
 - VPN Subnet: 10.0.0.0/24
 - Server IP: 10.0.0.1
 - Client IP: 10.0.0.2/32
 - Listen Port: 51820/udp
 
 **Actions**:
+
 - Install WireGuard packages
 - Generate cryptographic keys:
   - Server private key
@@ -282,6 +291,7 @@ flowchart TB
 - Open WireGuard port in UFW (51820/udp)
 
 **Outputs**:
+
 - WireGuard interface running (wg0)
 - User can connect via VPN to 10.0.0.0/24 subnet
 - VPN users can access internet through VPS
@@ -300,6 +310,7 @@ flowchart TB
 **Components Installed**:
 
 #### Node Exporter
+
 - **Port**: 9100/tcp (VPN only)
 - **Purpose**: Collect system-level metrics (CPU, memory, disk, network)
 - **Installation**:
@@ -309,6 +320,7 @@ flowchart TB
   - Enable and start service
 
 #### cAdvisor
+
 - **Port**: 8080/tcp (VPN only)
 - **Purpose**: Collect container metrics
 - **Installation**: Run as Docker container
@@ -317,6 +329,7 @@ flowchart TB
   - Restart policy: always
 
 #### Fail2Ban Exporter
+
 - **Port**: 9191/tcp (VPN only)
 - **Purpose**: Expose Fail2Ban statistics
 - **Installation**:
@@ -325,6 +338,7 @@ flowchart TB
   - Grant access to Fail2Ban socket
 
 #### Prometheus
+
 - **Port**: 9090/tcp (VPN only)
 - **Purpose**: Central metrics collection engine
 - **Retention**: 15 days (configurable)
@@ -380,6 +394,7 @@ flowchart LR
 ```
 
 #### Grafana
+
 - **Port**: 3000/tcp (VPN only)
 - **Purpose**: Data visualization dashboards
 - **Installation**:
@@ -396,7 +411,8 @@ flowchart LR
     - Security Status (Fail2Ban)
 
 **Firewall Rules** (VPN subnet only):
-```
+
+```text
 allow from 10.0.0.0/24 to any port 9100 proto tcp  # Node Exporter
 allow from 10.0.0.0/24 to any port 8080 proto tcp  # cAdvisor
 allow from 10.0.0.0/24 to any port 9191 proto tcp  # Fail2Ban Exporter
@@ -406,6 +422,7 @@ allow from 10.0.0.0/24 to any port 3000 proto tcp  # Grafana
 ```
 
 **Outputs**:
+
 - System metrics being collected (Node Exporter)
 - Container metrics being collected (cAdvisor)
 - Security metrics being collected (Fail2Ban Exporter)
@@ -424,6 +441,7 @@ allow from 10.0.0.0/24 to any port 3000 proto tcp  # Grafana
 **Components Installed**:
 
 #### Alertmanager
+
 - **Port**: 9093/tcp (VPN only)
 - **Purpose**: Route and manage alerts from Prometheus
 - **Installation**:
@@ -437,6 +455,7 @@ allow from 10.0.0.0/24 to any port 3000 proto tcp  # Grafana
   - Enable and start service
 
 #### Prometheus Alert Rules
+
 Configure alert rules in prometheus_alert_rules.yml:
 
 ```mermaid
@@ -482,40 +501,48 @@ flowchart TD
     TARG --> NOTIF
 ```
 
-**DiskSpaceHigh**
+##### DiskSpaceHigh
+
 - Warning: disk usage > 80% for 5 minutes
 - Critical: disk usage > 90% for 5 minutes
 - Annotations: mount point, current usage, available space
 
-**CPUHigh**
+##### CPUHigh
+
 - Warning: CPU > 80% for 5 minutes
 - Critical: CPU > 90% for 10 minutes
 - Annotations: current CPU percentage
 
-**MemoryHigh**
+##### MemoryHigh
+
 - Warning: memory > 80% for 5 minutes
 - Critical: memory > 90% for 10 minutes
 - Annotations: current memory percentage
 
-**ContainerDown**
+##### ContainerDown
+
 - Alert: Container has stopped
 - Duration: 1 minute
 - Annotations: container name
 
-**ServiceDown**
+##### ServiceDown
+
 - Alert: Monitoring service is down
 - Duration: 5 minutes
 - Annotations: service name
 
-**PrometheusTargetDown**
+##### PrometheusTargetDown
+
 - Alert: Exporter target is unreachable
 - Duration: 5 minutes
 - Annotations: target name, instance
 
 **Firewall Configuration**:
+
 - Open port 9093/tcp for VPN subnet (10.0.0.0/24)
 
 **Outputs**:
+
 - Alertmanager running and accessible via VPN
 - Prometheus configured to send alerts to Alertmanager
 - Email alerts configured for system and service issues
@@ -528,6 +555,7 @@ flowchart TD
 ### lib/common.sh
 
 **Utility Functions**:
+
 - `log_info "message"`: Print info message in blue
 - `log_success "message"`: Print success message in green
 - `log_warning "message"`: Print warning message in yellow
@@ -542,6 +570,7 @@ flowchart TD
 ### lib/logger.sh
 
 **Logging Functions**:
+
 - Setup /var/log/vps_setup.log
 - Configure logrotate for setup logs
 - `log_to_file "level" "message"`: Write to log with timestamp
@@ -669,6 +698,7 @@ flowchart TB
 ## Security Considerations
 
 ### Network Security
+
 - SSH port changed from 22 to non-standard port
 - SSH root login disabled
 - SSH password authentication disabled (key-only)
@@ -677,6 +707,7 @@ flowchart TB
 - Firewall default deny all incoming
 
 ### Application Security
+
 - Non-root user for daily operations
 - Sudo access for privileged commands
 - Automatic security updates enabled
@@ -686,6 +717,7 @@ flowchart TB
 - No anonymous access to monitoring tools
 
 ### Data Security
+
 - Monitoring data retention: 15 days (configurable)
 - Docker container isolation
 - VPN encryption for management access
@@ -696,6 +728,7 @@ flowchart TB
 ## Firewall Rules Summary
 
 ### Public Access
+
 ```bash
 # SSH direct access (initial/setup)
 ufw allow 2222/tcp
@@ -709,6 +742,7 @@ ufw default allow outgoing
 ```
 
 ### VPN-Only Access (10.0.0.0/24)
+
 ```bash
 # Monitoring stack
 ufw allow from 10.0.0.0/24 to any port 9100 proto tcp  # Node Exporter
@@ -885,6 +919,7 @@ echo "============================================"
 ## Post-Installation Steps
 
 ### 1. SSH Key Setup
+
 - On local machine: Generate SSH key pair
 - `ssh-keygen -t ed25519 -C "your-email@example.com"`
 - Copy public key to VPS: `ssh-copy-id -i ~/.ssh/id_ed25519.pub -p 2222 vpsadmin@your-vps-ip`
@@ -939,19 +974,20 @@ sequenceDiagram
     WG-->>C: Grafana Dashboard
 ```
 
-### 2. WireGuard Client Setup
 - Copy `wg-client.conf` to your device
 - For mobile: Scan QR code and import into WireGuard app
 - For desktop: Import config file into WireGuard client
 - Activate VPN connection, test: `ping 10.0.0.1`
 
 ### 3. Access Grafana
+
 - Connect via WireGuard VPN
 - Open browser: `http://10.0.0.1:3000`
 - Login: `admin` (password from .env)
 - View pre-configured dashboards
 
 ### 4. Verify All Services
+
 ```bash
 # Check service status
 systemctl status sshd
@@ -974,6 +1010,7 @@ curl http://localhost:9090/api/v1/targets
 ```
 
 ### 5. Test Alerts
+
 - Temporarily stop Node Exporter: `systemctl stop node_exporter`
 - Wait 5 minutes for alert to trigger
 - Check email for alert notification
@@ -984,23 +1021,27 @@ curl http://localhost:9090/api/v1/targets
 ## Troubleshooting
 
 ### WireGuard Connection Issues
+
 - Check: `wg show` - verify interface is up
 - Check: `ip route` - verify 10.0.0.0/24 routing
 - Check: `ufw status` - verify port 51820 is open
 - Check firewall logs: `/var/log/ufw.log`
 
 ### Monitoring Not Working
+
 - Check exporter service status
 - Verify firewall rules allow VPN subnet
 - Check Prometheus targets: `/api/v1/targets`
 - Check Prometheus logs: `/var/log/prometheus/prometheus.log`
 
 ### Docker Issues
+
 - Check: `systemctl status docker` - verify service running
 - Check: `docker info` - verify daemon responding
 - Check Docker logs: `journalctl -u docker`
 
 ### Email Alerts Not Sending
+
 - Verify SMTP credentials in .env
 - Check Alertmanager logs: `/var/log/alertmanager/alertmanager.log`
 - Test SMTP configuration manually
@@ -1011,6 +1052,7 @@ curl http://localhost:9090/api/v1/targets
 ## Maintenance
 
 ### Regular Tasks
+
 - Review Grafana dashboards weekly
 - Check system logs for anomalies: `/var/log/auth.log`, `/var/log/syslog`
 - Run security audits: `lynis audit system`
@@ -1019,6 +1061,7 @@ curl http://localhost:9090/api/v1/targets
 - Review blocked IPs in Fail2Ban: `fail2ban-client status sshd`
 
 ### Backup Strategy
+
 - Backup configuration files:
   - `/etc/wireguard/wg0.conf`
   - `/etc/ssh/sshd_config`
@@ -1028,6 +1071,7 @@ curl http://localhost:9090/api/v1/targets
 - Consider setting up rsync backup to remote location
 
 ### Updates
+
 - Docker: `apt update && apt upgrade docker-ce`
 - Exporters: Monitor for new releases, update binaries
 - Grafana: `apt update && apt upgrade grafana`
@@ -1037,25 +1081,25 @@ curl http://localhost:9090/api/v1/targets
 
 ## Glossary
 
-| Term | Definition |
-|------|------------|
-| **VPS** | Virtual Private Server - a virtual machine hosted in the cloud |
-| **SSH** | Secure Shell - protocol for secure remote access |
-| **UFW** | Uncomplicated Firewall - firewall management tool for Ubuntu/Debian |
-| **Fail2Ban** | Intrusion prevention software that blocks IP addresses with too many failed authentication attempts |
-| **WireGuard** | Modern VPN protocol - faster and simpler than OpenVPN |
-| **Docker** | Platform for developing, shipping, and running applications in containers |
-| **Prometheus** | Open-source monitoring and alerting toolkit |
-| **Grafana** | Open-source analytics and interactive visualization web application |
-| **Alertmanager** | Handles alerts sent by Prometheus |
-| **Exporter** | Program that exposes metrics in Prometheus format |
-| **Node Exporter** | Prometheus exporter for hardware and OS metrics |
-| **cAdvisor** | Container Advisor - analyzes and exposes container resource usage |
-| **Scrape** | Act of collecting metrics from an endpoint |
-| **Retention** | How long data is stored before being deleted |
-| **Dashboard** | Visual representation of metrics in Grafana |
-| **Panel** | Single visualization within a dashboard |
-| **Time series** | Sequence of data points indexed by time |
+| Term              | Definition                                                                                          |
+| ----------------- | --------------------------------------------------------------------------------------------------- |
+| **VPS**           | Virtual Private Server - a virtual machine hosted in the cloud                                      |
+| **SSH**           | Secure Shell - protocol for secure remote access                                                    |
+| **UFW**           | Uncomplicated Firewall - firewall management tool for Ubuntu/Debian                                 |
+| **Fail2Ban**      | Intrusion prevention software that blocks IP addresses with too many failed authentication attempts |
+| **WireGuard**     | Modern VPN protocol - faster and simpler than OpenVPN                                               |
+| **Docker**        | Platform for developing, shipping, and running applications in containers                           |
+| **Prometheus**    | Open-source monitoring and alerting toolkit                                                         |
+| **Grafana**       | Open-source analytics and interactive visualization web application                                 |
+| **Alertmanager**  | Handles alerts sent by Prometheus                                                                   |
+| **Exporter**      | Program that exposes metrics in Prometheus format                                                   |
+| **Node Exporter** | Prometheus exporter for hardware and OS metrics                                                     |
+| **cAdvisor**      | Container Advisor - analyzes and exposes container resource usage                                   |
+| **Scrape**        | Act of collecting metrics from an endpoint                                                          |
+| **Retention**     | How long data is stored before being deleted                                                        |
+| **Dashboard**     | Visual representation of metrics in Grafana                                                         |
+| **Panel**         | Single visualization within a dashboard                                                             |
+| **Time series**   | Sequence of data points indexed by time                                                             |
 
 ---
 
@@ -1171,10 +1215,10 @@ flowchart TB
 
 ## Version History
 
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.0 | 2026-02-11 | Initial design document |
-| 1.1 | 2026-02-11 | Added mermaid diagrams for architecture, alert flow, and workflows |
+| Version | Date       | Changes                                                            |
+| ------- | ---------- | ------------------------------------------------------------------ |
+| 1.0     | 2026-02-11 | Initial design document                                            |
+| 1.1     | 2026-02-11 | Added mermaid diagrams for architecture, alert flow, and workflows |
 
 ---
 
