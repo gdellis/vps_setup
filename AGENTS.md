@@ -196,3 +196,71 @@ Follow the existing pattern:
 - Keep subject line under 72 characters
 - Separate body with blank line if needed
 - Reference related Design.md sections when relevant
+
+## Git Workflow and PR Best Practices
+
+### Branch Naming
+- Use descriptive branch names: `feature/monitoring-setup`, `bugfix/ssh-port-config`
+- Use `fix/` for bug fixes, `feature/` for new features, `docs/` for documentation
+- Keep branch names lowercase with hyphens: `alertmanager-smtp-config`, not `AlertManager_SMTP_Config`
+
+### Commit Strategy
+- Make small, focused commits that do one thing
+- Commits should be atomic and able to be reverted independently
+- Run linters before committing: `shellcheck` and `markdownlint`
+- Never commit:
+  - `.env` files (contains sensitive data)
+  - SSH keys, WireGuard private keys
+  - Generated client configs
+  - Any files listed in `.gitignore`
+
+### Pull Request Guidelines
+- PR titles should follow commit message style (present tense, capitalized)
+- Include PR description with:
+  - Summary of changes
+  - What problem this solves
+  - How to test/verify
+  - Any breaking changes
+- Link related issues or Design.md sections
+- Keep PRs focused on a single feature or fix
+- Update documentation (README.md, AGENTS.md) alongside code changes
+
+### Pre-Merge Checklist
+Before merging a PR:
+- All linting passes: `shellcheck` and `markdownlint`
+- Code follows AGENTS.md style guidelines
+- Documentation is updated
+- Sensitive files are not included (check `.gitignore`)
+- Breaking changes are documented
+- Related tests pass (if applicable)
+- Revert capability: ensure changes can be cleanly reverted if needed
+
+### Updating Code in Main Branch
+When asked to commit changes:
+- Review the diff to understand what will be committed
+- Create descriptive commit following the style guide
+- Do not push to remote unless explicitly requested
+- Do not force push to protected branches (main, master, dev)
+
+### Working with Feature Branches
+1. Create feature branch from main: `git checkout -b feature/branch-name`
+2. Make changes and commit frequently
+3. Push to remote: `git push -u origin feature/branch-name`
+4. Create PR with clear description
+5. Address review feedback
+6. Update branch and resolve conflicts if needed: `git rebase main`
+7. Merge after approval
+
+### Git Safety Rules
+- NEVER update `git config` (user.email, user.name)
+- NEVER run destructive git commands (push --force, hard reset) without explicit user request
+- NEVER skip hooks (--no-verify, --no-gpg-sign) unless user explicitly requests
+- NEVER force push to main/master (warn the user if requested)
+- Avoid git commit --amend. Only use when ALL conditions are met:
+  - User explicitly requested amend
+  - OR commit succeeded but pre-commit hook auto-modified files that need including
+  - AND HEAD commit was created by you in this conversation (verify: `git log -1 --format='%an %ae'`)
+  - AND commit has NOT been pushed to remote (verify: `git status` shows "Your branch is ahead")
+- CRITICAL: If commit FAILED or was REJECTED by hook, NEVER amend - fix the issue and create a NEW commit
+- CRITICAL: If you already pushed to remote, NEVER amend unless user explicitly requests it (requires force push)
+- NEVER commit changes unless the user explicitly asks you to. It is VERY IMPORTANT to only commit when explicitly asked, otherwise the user will feel that you are being too proactive.
