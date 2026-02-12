@@ -74,29 +74,34 @@ readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ```
 
 #### Naming Conventions
+
 - **Functions**: snake_case, descriptive: `install_docker()`, `configure_wireguard()`
 - **Variables**: UPPER_CASE for constants, lower_case for locals: `SSH_PORT`, `username`
 - **Readonly values**: Mark with `readonly`: `readonly CONFIG_PATH="/etc/wireguard/wg0.conf"`
 - **Private functions**: Prefix with `_`: `_validate_config()`
 
 #### Error Handling
+
 - Always check return codes for critical operations: `command || exit 1`
 - Use `set -euo pipefail` at script start for strict error handling
 - Provide meaningful error messages: `log_error "Failed to create user: $username"`
 - Use `trap` for cleanup on error: `trap cleanup ERR EXIT`
 
 #### Formatting
+
 - Use 4-space indentation (not tabs)
 - Long commands: break into logical lines with backslashes
 - Comments: `#` prefix, describe **why** not **what** (obvious code needs no comment)
 - Separate functions with blank lines
 
 #### Logging
+
 - Use library logging functions: `log_info`, `log_success`, `log_warning`, `log_error`
 - Log user-facing actions with numbered steps: `[1/5] Installing Docker...`
 - Log to file with `log_to_file "INFO" "message"`
 
 #### Conditionals
+
 ```bash
 # Use [[ ]] for string/variable comparisons
 if [[ -z "$variable" ]]; then
@@ -115,10 +120,12 @@ fi
 ```
 
 #### Command Substitution
+
 - Use `$()` syntax instead of backticks: `result=$(command)`
 - Quote variables: `"$result"` to prevent word splitting
 
 #### User Input
+
 - When prompts are needed, use `read` with clear instructions
 - Validate input before proceeding
 - Provide sensible defaults via .env file instead of interactive input
@@ -126,14 +133,16 @@ fi
 ### Markdown Documentation
 
 #### Formatting Standards
+
 - Use `markdownlint` to validate documentation before committing
 - Headers should start at level 1 (`#`) for the document title, increment logically
-- Use fenced code blocks for code examples (```bash, ```mermaid, etc.)
+- Use fenced code blocks for code examples (```bash,```mermaid, etc.)
 - Include mermaid diagrams where visual representation adds clarity
 - Keep line length under 100-120 characters for readability
 - Use lists with consistent spacing and indentation
 
 #### mermaid Diagram Guidelines
+
 - Use `mermaid` syntax for system architecture and flow diagrams
 - Include `flowchart TB` (top-bottom) for vertical layouts
 - Label subgraphs clearly: `subgraph Name["Display Name"]`
@@ -141,6 +150,7 @@ fi
 - Avoid parentheses `()` in node labels - use colons `:` instead (parser limitation)
 
 #### Documentation Structure
+
 - Overview/Introduction at the top
 - Sections ordered logically: Setup -> Configuration -> Reference
 - Include code examples in code blocks with syntax highlighting
@@ -159,6 +169,7 @@ fi
 ## File Organization
 
 ### Script Header Template
+
 ```bash
 #!/bin/bash
 # Script Name: 01_initial_hardening.sh
@@ -169,6 +180,7 @@ fi
 ```
 
 ### Script Structure
+
 1. Shebang
 2. Header comments
 3. Source libraries
@@ -196,6 +208,7 @@ fi
 ## Commit Message Style
 
 Follow the existing pattern:
+
 - Capitalize the first letter of the subject line
 - Use present tense: "Add" not "Added", "Fix" not "Fixed"
 - Keep subject line under 72 characters
@@ -205,11 +218,13 @@ Follow the existing pattern:
 ## Git Workflow and PR Best Practices
 
 ### Branch Naming
+
 - Use descriptive branch names: `feature/monitoring-setup`, `bugfix/ssh-port-config`
 - Use `fix/` for bug fixes, `feature/` for new features, `docs/` for documentation
 - Keep branch names lowercase with hyphens: `alertmanager-smtp-config`, not `AlertManager_SMTP_Config`
 
 ### Commit Strategy
+
 - Make small, focused commits that do one thing
 - Commits should be atomic and able to be reverted independently
 - Run linters before committing: `shellcheck` and `markdownlint`
@@ -220,6 +235,7 @@ Follow the existing pattern:
   - Any files listed in `.gitignore`
 
 ### Pull Request Guidelines
+
 - PR titles should follow commit message style (present tense, capitalized)
 - Include PR description with:
   - Summary of changes
@@ -231,7 +247,9 @@ Follow the existing pattern:
 - Update documentation (README.md, AGENTS.md) alongside code changes
 
 ### Pre-Merge Checklist
+
 Before merging a PR:
+
 - All linting passes: `shellcheck` and `markdownlint`
 - Code follows AGENTS.md style guidelines
 - Documentation is updated
@@ -241,13 +259,16 @@ Before merging a PR:
 - Revert capability: ensure changes can be cleanly reverted if needed
 
 ### Updating Code in Main Branch
+
 When asked to commit changes:
+
 - Review the diff to understand what will be committed
 - Create descriptive commit following the style guide
 - Do not push to remote unless explicitly requested
 - Do not force push to protected branches (main, master, dev)
 
 ### Working with Feature Branches
+
 1. Create feature branch from main: `git checkout -b feature/branch-name`
 2. Make changes and commit frequently
 3. Push to remote: `git push -u origin feature/branch-name`
@@ -257,6 +278,7 @@ When asked to commit changes:
 7. Merge after approval
 
 ### Git Safety Rules
+
 - NEVER update `git config` (user.email, user.name)
 - NEVER run destructive git commands (push --force, hard reset) without explicit user request
 - NEVER skip hooks (--no-verify, --no-gpg-sign) unless user explicitly requests
@@ -268,4 +290,5 @@ When asked to commit changes:
   - AND commit has NOT been pushed to remote (verify: `git status` shows "Your branch is ahead")
 - CRITICAL: If commit FAILED or was REJECTED by hook, NEVER amend - fix the issue and create a NEW commit
 - CRITICAL: If you already pushed to remote, NEVER amend unless user explicitly requests it (requires force push)
-- NEVER commit changes unless the user explicitly asks you to. It is VERY IMPORTANT to only commit when explicitly asked, otherwise the user will feel that you are being too proactive.
+- NEVER commit changes unless the user explicitly asks you to. It is VERY IMPORTANT to only commit when explicitly asked,
+  otherwise the user will feel that you are being too proactive.
