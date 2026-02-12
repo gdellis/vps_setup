@@ -1,0 +1,169 @@
+# VPS Setup - Agent Guidelines
+
+This document provides guidelines for agentic coding assistants working on the VPS Setup project.
+
+## Build / Lint / Test Commands
+
+### Running Scripts (Testing)
+```bash
+# Run a specific module directly (requires sudo)
+sudo ./01_initial_hardening.sh
+sudo ./02_docker_setup.sh
+sudo ./03_wireguard_setup.sh
+sudo ./04_monitoring_setup.sh
+sudo ./05_alerting_setup.sh
+
+# Run the full installation pipeline
+sudo ./install_all.sh
+```
+
+### Linting
+```bash
+# Shell script linting with ShellCheck
+shellcheck 01_initial_hardening.sh
+shellcheck 02_docker_setup.sh
+shellcheck 03_wireguard_setup.sh
+shellcheck 04_monitoring_setup.sh
+shellcheck 05_alerting_setup.sh
+shellcheck lib/*.sh
+
+# Check all bash scripts recursively
+find . -name "*.sh" -exec shellcheck {} \;
+```
+
+### Dry Run / Validation (without root)
+```bash
+# Syntax check only
+bash -n 01_initial_hardening.sh
+
+# Source library functions for testing (if not running as root)
+source ./lib/common.sh
+source ./lib/logger.sh
+```
+
+## Code Style Guidelines
+
+### Bash Scripting
+
+#### Shebang and Interpreter
+- Always use `#!/bin/bash` at the top of scripts
+- Target Bash 4.0+ features for compatibility with Ubuntu 20.04+
+
+#### Imports and Source Order
+```bash
+#!/bin/bash
+# 1. Source shared libraries first
+source ./lib/common.sh
+source ./lib/logger.sh
+
+# 2. Then script-specific variables (sourced from .env if available)
+[ -f .env ] && source .env
+
+# 3. Then define script constants
+readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+```
+
+#### Naming Conventions
+- **Functions**: snake_case, descriptive: `install_docker()`, `configure_wireguard()`
+- **Variables**: UPPER_CASE for constants, lower_case for locals: `SSH_PORT`, `username`
+- **Readonly values**: Mark with `readonly`: `readonly CONFIG_PATH="/etc/wireguard/wg0.conf"`
+- **Private functions**: Prefix with `_`: `_validate_config()`
+
+#### Error Handling
+- Always check return codes for critical operations: `command || exit 1`
+- Use `set -euo pipefail` at script start for strict error handling
+- Provide meaningful error messages: `log_error "Failed to create user: $username"`
+- Use `trap` for cleanup on error: `trap cleanup ERR EXIT`
+
+#### Formatting
+- Use 4-space indentation (not tabs)
+- Long commands: break into logical lines with backslashes
+- Comments: `#` prefix, describe **why** not **what** (obvious code needs no comment)
+- Separate functions with blank lines
+
+#### Logging
+- Use library logging functions: `log_info`, `log_success`, `log_warning`, `log_error`
+- Log user-facing actions with numbered steps: `[1/5] Installing Docker...`
+- Log to file with `log_to_file "INFO" "message"`
+
+#### Conditionals
+```bash
+# Use [[ ]] for string/variable comparisons
+if [[ -z "$variable" ]]; then
+  log_error "Variable is empty"
+fi
+
+# Use (( )) for arithmetic
+if (( count > 5 )); then
+  log_info "Count is $count"
+fi
+
+# Use -eq for numeric equality in [ ]
+if [ "$exit_code" -eq 0 ]; then
+  log_success "Complete"
+fi
+```
+
+#### Command Substitution
+- Use `$()` syntax instead of backticks: `result=$(command)`
+- Quote variables: `"$result"` to prevent word splitting
+
+#### User Input
+- When prompts are needed, use `read` with clear instructions
+- Validate input before proceeding
+- Provide sensible defaults via .env file instead of interactive input
+
+## Security Guidelines
+
+- Never hardcode passwords, keys, or tokens
+- Always source `.env` for configuration values
+- Validate all user input before using in commands
+- Use `readonly` for immutable paths and configuration variables
+- Backup files before editing: `backup_file /etc/file.conf`
+- Sensitive files must be excluded by .gitignore (check before committing)
+
+## File Organization
+
+### Script Header Template
+```bash
+#!/bin/bash
+# Script Name: 01_initial_hardening.sh
+# Purpose:     Baseline security hardening setup
+# Prerequisites: Root access, Ubuntu/Debian
+# Usage:       sudo ./01_initial_hardening.sh
+# Dependencies: ./lib/common.sh, ./lib/logger.sh
+```
+
+### Script Structure
+1. Shebang
+2. Header comments
+3. Source libraries
+4. Global constants/readonly variables
+5. Main function
+6. Helper functions
+7. Call main() at end
+
+## Testing Practices
+
+- Test scripts in a VM or container before production use
+- Verify dependencies are checked before attempting operations
+- Validate configuration files created have correct syntax
+- Test rollback scenarios (service failures, network issues)
+- Verify idempotency (scripts can be run multiple times safely)
+
+## When Working on This Codebase
+
+1. Always read `Design.md` first to understand architecture
+2. Check `install_all.sh` for expected execution order
+3. Ensure library functions in `lib/` are used consistently
+4. Maintain compatibility with Ubuntu 20.04+ and Debian 11+
+5. Update this AGENTS.md if introducing new tooling or standards
+
+## Commit Message Style
+
+Follow the existing pattern:
+- Capitalize the first letter of the subject line
+- Use present tense: "Add" not "Added", "Fix" not "Fixed"
+- Keep subject line under 72 characters
+- Separate body with blank line if needed
+- Reference related Design.md sections when relevant
