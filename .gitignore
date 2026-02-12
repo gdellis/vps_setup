@@ -1,0 +1,62 @@
+# Environment files with sensitive data
+.env
+.env.local
+.env.*.local
+
+# WireGuard client configs (contains private keys)
+*.conf
+wg-client.conf
+wg0.conf
+*.qr
+
+# SSH keys (if generated locally)
+*.pem
+*.key
+id_ed25519
+id_rsa
+known_hosts
+
+# Log files
+*.log
+logs/
+var/log/
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Prometheus data
+prometheus_data/
+
+# Grafana data
+grafana_data/
+grafana.db
+
+# Docker volumes
+docker-volumes/
+
+# OS specific
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# systemd service overrides
+/etc/systemd/system/*.d/
