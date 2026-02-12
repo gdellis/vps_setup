@@ -1,0 +1,112 @@
+name: Lint and Validate
+
+on:
+  push:
+    branches:
+      - main
+      - 'feature/**'
+      - 'fix/**'
+      - 'docs/**'
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  shellcheck:
+    name: Shell Script Linting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run ShellCheck
+        uses: ludeeus/action-shellcheck@master
+        with:
+          scandir: '.'
+          additional_files: 'lib/*.sh'
+          severity: error
+          format: gcc
+
+  markdownlint:
+    name: Markdown Linting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run markdownlint
+        uses: articulate/actions-markdownlint@v1
+        with:
+          config: '.markdownlint.json'
+          files: '**/*.md'
+          ignore: 'node_modules'
+
+  syntax-check:
+    name: Bash Syntax Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check script syntax
+        run: |
+          for script in *.sh lib/*.sh; do
+            if [ -f "$script" ]; then
+              echo "Checking syntax of $script..."
+              bash -n "$script" || exit 1
+            fi
+          done
+
+  validate-env-template:
+    name: Validate .env.example
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check .env.example exists
+        run: |
+          if [ -f ".env.example" ]; then
+            echo ".env.example exists"
+          else
+            echo "Error: .env.example not found"
+            exit 1
+          fi
+
+  validate-gitignore:
+    name: Validate .gitignore
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check for sensitive patterns in .gitignore
+        run: |
+          required_patterns=('\.env$' '\*\.key' '\*\.pem' '\*\.conf$')
+          for pattern in "${required_patterns[@]}"; do
+            if grep -q "$pattern" .gitignore; then
+              echo "✓ Found pattern: $pattern"
+            else
+              echo "✗ Missing pattern: $pattern"
+              exit 1
+            fi
+          done
+
+  validate-documentation:
+    name: Validate Documentation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check required documentation files
+        run: |
+          required_files=('README.md' 'Design.md' 'AGENTS.md' '.gitignore')
+          for file in "${required_files[@]}"; do
+            if [ -f "$file" ]; then
+              echo "✓ Found: $file"
+            else
+              echo "✗ Missing: $file"
+              exit 1
+            fi
+          done
