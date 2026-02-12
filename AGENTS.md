@@ -60,7 +60,7 @@ source ./lib/logger.sh
 
 #### Imports and Source Order
 
-```bash
+```bash template
 #!/bin/bash
 # 1. Source shared libraries first
 source ./lib/common.sh
@@ -136,7 +136,11 @@ fi
 
 - Use `markdownlint` to validate documentation before committing
 - Headers should start at level 1 (`#`) for the document title, increment logically
-- Use fenced code blocks for code examples (```bash,```mermaid, etc.)
+- Use fenced code blocks for code examples (```bash, ```mermaid, etc.)
+- Name code blocks with expected filenames when the code represents a specific file, even if it doesn't exist yet
+- Example: ```bash common.sh for a library function file
+- Use descriptive names for generic examples that don't represent files: ```bash example
+- Mermaid diagrams: no naming required (```mermaid)
 - Include mermaid diagrams where visual representation adds clarity
 - Keep line length under 100-120 characters for readability
 - Use lists with consistent spacing and indentation
