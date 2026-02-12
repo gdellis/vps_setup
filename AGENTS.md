@@ -136,11 +136,11 @@ fi
 
 - Use `markdownlint` to validate documentation before committing
 - Headers should start at level 1 (`#`) for the document title, increment logically
-- Use fenced code blocks for code examples (```bash, ```mermaid, etc.)
-- Name code blocks with expected filenames when the code represents a specific file, even if it doesn't exist yet
-- Example: ```bash common.sh for a library function file
-- Use descriptive names for generic examples that don't represent files: ```bash example
-- Mermaid diagrams: no naming required (```mermaid)
+- Use fenced code blocks for code examples: use \`\`\`bash for scripts, \`\`\`mermaid for diagrams
+- Name code blocks with expected filenames after the language when the code represents a specific file
+- Example: Use \`\`\`bash common.sh for a library function file
+- Use descriptive names for generic examples: \`\`\`bash example
+- Mermaid diagrams: filename not required
 - Include mermaid diagrams where visual representation adds clarity
 - Keep line length under 100-120 characters for readability
 - Use lists with consistent spacing and indentation
