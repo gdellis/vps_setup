@@ -48,15 +48,17 @@ main() {
 		useradd -rs /bin/false "$ALERTMANAGER_USER" 2>/dev/null || true
 		chown -R "$ALERTMANAGER_USER:$ALERTMANAGER_USER" "$ALERTMANAGER_DIR"
 
-		SMTP_SERVER="${SMTP_SERVER:-smtp.gmail.com}"
+		SMTP_SERVER="${SMTP_SERVER:-smtp.example.com}"
 		SMTP_PORT="${SMTP_PORT:-587}"
-		SMTP_USERNAME="${SMTP_USERNAME:-}"
-		SMTP_PASSWORD="${SMTP_PASSWORD:-}"
-		ALERT_FROM="${ALERT_FROM:-noreply@vps.local}"
-		ALERT_TO="${ALERT_TO:-admin@localhost}"
+		SMTP_USERNAME="${SMTP_USERNAME:-YOUR_SMTP_USERNAME}"
+		SMTP_PASSWORD="${SMTP_PASSWORD:-YOUR_SMTP_APP_PASSWORD}"
+		ALERT_FROM="${ALERT_FROM:-noreply@example.com}"
+		ALERT_TO="${ALERT_TO:-your-email@example.com}"
 
-		if [[ -z "$SMTP_PASSWORD" ]]; then
-			log_warning "SMTP_PASSWORD not set in .env. Email alerts may not work."
+		# Warn if using example.com or placeholder values
+		if [[ "$SMTP_SERVER" == *"example.com"* || "$SMTP_USERNAME" == *"YOUR_"* || "$SMTP_PASSWORD" == *"YOUR_"* ]]; then
+			log_warning "SMTP credentials appear to use placeholder values. Email alerts may not work."
+			log_warning "Please update .env with actual SMTP credentials."
 		fi
 
 		cat >"$ALERTMANAGER_DIR/alertmanager.yml" <<EOF
