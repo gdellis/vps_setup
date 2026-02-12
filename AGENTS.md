@@ -29,6 +29,11 @@ shellcheck lib/*.sh
 
 # Check all bash scripts recursively
 find . -name "*.sh" -exec shellcheck {} \;
+
+# Markdown documentation linting with markdownlint
+markdownlint *.md
+markdownlint README.md Design.md AGENTS.md
+find . -name "*.md" -exec markdownlint {} \;
 ```
 
 ### Dry Run / Validation (without root)
@@ -112,6 +117,30 @@ fi
 - When prompts are needed, use `read` with clear instructions
 - Validate input before proceeding
 - Provide sensible defaults via .env file instead of interactive input
+
+### Markdown Documentation
+
+#### Formatting Standards
+- Use `markdownlint` to validate documentation before committing
+- Headers should start at level 1 (`#`) for the document title, increment logically
+- Use fenced code blocks for code examples (```bash, ```mermaid, etc.)
+- Include mermaid diagrams where visual representation adds clarity
+- Keep line length under 100-120 characters for readability
+- Use lists with consistent spacing and indentation
+
+#### mermaid Diagram Guidelines
+- Use `mermaid` syntax for system architecture and flow diagrams
+- Include `flowchart TB` (top-bottom) for vertical layouts
+- Label subgraphs clearly: `subgraph Name["Display Name"]`
+- Use color styling for better visualization: `style NODE fill:#hex`
+- Avoid parentheses `()` in node labels - use colons `:` instead (parser limitation)
+
+#### Documentation Structure
+- Overview/Introduction at the top
+- Sections ordered logically: Setup -> Configuration -> Reference
+- Include code examples in code blocks with syntax highlighting
+- Link related sections using Markdown reference-style links when possible
+- Keep tables for comparison data or configuration options
 
 ## Security Guidelines
 
