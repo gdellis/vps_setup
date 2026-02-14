@@ -45,7 +45,8 @@ main() {
 	fi
 
 	log_step 4 10 "Restarting SSH service"
-	systemctl restart sshd
+	systemctl restart ssh
+
 	log_success "SSH configured on port ${SSH_PORT:-2222}"
 
 	log_step 5 10 "Creating non-root user"

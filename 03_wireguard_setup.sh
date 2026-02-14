@@ -31,7 +31,7 @@ main() {
 
 	log_step 1 9 "Installing WireGuard"
 	apt-get update
-	apt-get install -y wireguard tools
+	apt-get install -y wireguard wireguard-tools
 
 	mkdir -p /etc/wireguard
 	log_success "WireGuard installed"
